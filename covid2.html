@@ -26,13 +26,28 @@
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
         
-        var color = d3.scale.ordinal()
-            .range(["#FFFFFF","#ee1414","#1028F3"]);
+        var header_div = d3.select("body")
+            .append("div")
+            .attr("id","header")
+            .attr("width", width-margin)
+            .attr("style","text-align: center;vertical-align: middle;");
+        
+        var content = d3.select("body")
+            .append("div")
+            .attr("id","content")
+            .attr("width", width-margin)
+            .attr("style","text-align: center;vertical-align: middle;"); 
 
+        var legend = d3.select("body")
+            .append("div")
+            .attr("id","legend")
+            .attr("width", width-margin)
+            .attr("style","text-align: center;vertical-align: middle;");
+        
         var svg = d3.select('body').append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-            .attr("style", "padding: 300px")
+            .attr("style", "padding-left: 400px;padding-top:50px;")
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         
@@ -58,7 +73,17 @@
                   {'field_name':'Total Deaths','field_value' : total_deaths}
                 ];
         }
-      
+        
+        function header_content() {
+            var header_html = "<span style='font-size:60;'>World Top 10 Covid Affected Countries</span>" + "<br/>"
+            return header_html +"<br>";
+        }
+        d3.select("#header").html(header_content());
+        d3.select("#content").html("<span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
+            +"pandemic of coronavirus disease 2019 (COVID-19). Below bar chart can be used to do total cases and total deaths comparision between world's top 10 affected countries."
+            +"If you wish to see see daily trends of covid cases across world then <a href='/covid3.html'>click here</a></span>");
+        d3.select("#legend").html("");
+            
         var raw_nested = d3.nest()
                            .key(function(d) {
                               return d['location'];
@@ -83,8 +108,6 @@
                 }
             }
         }
-        
-        
         
       var countriesNames = nested.map(function(d) { return d.key; });
       var parameterNames = ['Total Cases','Total Deaths'];
@@ -140,6 +163,9 @@
           .attr("transform",function(d) { 
             return "translate(" + x0(d.key) + ",0)";
           });
+      
+      var color = d3.scale.ordinal()
+            .range(["#FFFFFF","rgb(249, 153, 153)","86B2F6"]);
 
       slice.selectAll("rect")
           .data(function(d) { 
