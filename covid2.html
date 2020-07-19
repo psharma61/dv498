@@ -1,0 +1,254 @@
+<html>
+<head>
+    <title>Covid Narrative</title>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+        body {
+          font: 10px sans-serif;
+        }
+
+        .axis path,
+        .axis line {
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+          display: none;
+        }
+
+    </style>
+    <script type="text/javascript">  
+    function plot_bar_chart(data) {
+        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+        
+        var color = d3.scale.ordinal()
+            .range(["#FFFFFF","#ee1414","#1028F3"]);
+
+        var svg = d3.select('body').append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .attr("style", "padding: 300px")
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+        svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", margin.top)
+            .attr("text-anchor", "middle")  
+            .style("font-size", "16px") 
+            .style("text-decoration", "underline")  
+            .text("Top 10 countries covid cases & deaths comparison");
+            
+        function agg_cases_count(leaves) {
+                var total_new_cases = d3.sum(leaves, function(d) {
+                    return d['new_cases'];
+                });
+                
+                var total_deaths = d3.sum(leaves, function(d) {
+                    return d['new_deaths'];
+                });
+                return [
+                  {'field_name':'location','field_value':leaves[0]['location']},
+                  {'field_name':'Total Cases','field_value' : total_new_cases},
+                  {'field_name':'Total Deaths','field_value' : total_deaths}
+                ];
+        }
+      
+        var raw_nested = d3.nest()
+                           .key(function(d) {
+                              return d['location'];
+                           })
+                           .rollup(agg_cases_count)
+                           .entries(data);
+        
+        var nested = [];
+        var world_countries_cases = [];
+        for(var rn in raw_nested) {
+            if(raw_nested[rn].values[0].field_value != 'World') {
+                world_countries_cases.push(raw_nested[rn].values[1].field_value);
+            }
+        }
+        
+        var top_20_cases_countries = world_countries_cases.sort((a,b) => b-a).slice(0,10);
+        for(var idx in top_20_cases_countries) {
+            for(var rn in raw_nested) {
+                if(top_20_cases_countries[idx] == raw_nested[rn].values[1].field_value) {
+                    nested.push(raw_nested[rn]);
+                    break;
+                }
+            }
+        }
+        
+        
+        
+      var countriesNames = nested.map(function(d) { return d.key; });
+      var parameterNames = ['Total Cases','Total Deaths'];
+
+      var x0 = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+      var x1 = d3.scale.ordinal();
+
+      var xAxis = d3.svg.axis()
+        .scale(x0)
+        .tickSize(0)
+        .orient("bottom");
+    
+      var y = d3.scale.linear()
+        .range([height, 0])
+        .domain([0, Math.max.apply(Math,top_20_cases_countries)]);
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickFormat(function (d) {
+            var prefix = d3.formatPrefix(d);
+            return prefix.scale(d) + prefix.symbol;
+        })
+        .orient("left");
+    
+    
+      x0.domain(countriesNames);
+      x1.domain(parameterNames).rangeRoundBands([0, x0.rangeBand()]);
+     
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .style('opacity','0')
+          .call(yAxis)
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 2)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .style('font-weight','bold')
+          .text("Count");
+
+      svg.select('.y').transition().duration(500).delay(1300).style('opacity','1');
+
+      var slice = svg.selectAll(".slice")
+          .data(nested)
+          .enter().append("g")
+          .attr("class", "g")
+          .attr("transform",function(d) { 
+            return "translate(" + x0(d.key) + ",0)";
+          });
+
+      slice.selectAll("rect")
+          .data(function(d) { 
+            return d.values;
+          })
+          .enter().append("rect")
+          .attr("width", x1.rangeBand())
+          .attr("x", function(d) { 
+            return x1(d.field_name);
+          })
+          .style("fill", function(d) {
+            return color(d.field_name)
+          })
+          .attr("y", function(d) {
+            return y(0);
+          })
+          .attr("height", function(d) {
+            return height - y(0);
+          })
+          .on("mouseover", function(d) {
+              d3.select(this).style("fill", d3.rgb(color(d.field_name)).darker(2));
+          })
+          .on("mouseout", function(d) {
+              d3.select(this).style("fill", color(d.field_name));
+          });
+
+      slice.selectAll("rect")
+          .transition()
+          .delay(function (d) {return Math.random()*1000;})
+          .duration(1000)
+          .attr("y", function(d) { 
+            if(d.field_value === parseInt(d.field_value, 10) && parseInt(d.field_value, 10) > 0) {
+                return y(d.field_value);
+            } 
+            return y(0);
+          })
+          .attr("height", function(d) {
+            if(d.field_value === parseInt(d.field_value, 10) && parseInt(d.field_value, 10) > 0) {
+                return height - y(d.field_value);
+            } 
+            return 0;
+          });
+          
+      slice.selectAll("text")
+        .data(function(d) { 
+            var _values = d.values;
+            _values.shift();
+            return _values;
+          })
+        .enter().append("text")
+        .text(function(d) {return d.field_value})
+        .attr("class", "text")
+        .attr("y", function(d) { 
+            return y(d.field_value);
+          })
+        .attr("height", function(d) {
+             return height - y(d.field_value);
+        })
+        .attr("width", x1.rangeBand())
+          .attr("x", function(d) { 
+            return x1(d.field_name);
+        });
+      
+      //Legend
+      var legend = svg.selectAll(".legend")
+          .data(nested[0].values.map(function(d) {
+                if(d.field_name == 'location') {
+                    return "";
+                }
+                return d.field_name; 
+            }).reverse())
+          .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d,i) {
+            return "translate(0," + i * 20 + ")"; 
+          })
+          .style("opacity","0");
+
+      legend.append("rect")
+          .attr("x", width - 18)
+          .attr("width", 18)
+          .attr("height", 18)
+          .style("fill", function(d) { 
+            return color(d);
+           });
+
+      legend.append("text")
+          .attr("x", width - 24)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) {
+            return d;
+          });
+
+      legend.transition().duration(500).delay(function(d,i){ return 1300 + 100 * i; }).style("opacity","1");
+
+    };
+    </script>
+  </head>
+<body>
+  <script>
+    d3.tsv("/covid-data.tsv", function(d) {
+          d['new_cases'] = +d['new_cases'];
+          d['new_deaths'] = +d['new_deaths'];
+          d['population'] = +d['population'];
+        //  d['new_tests'] = +d['new_tests'];
+          return d;
+        }, plot_bar_chart);
+  </script>  
+</body>
+</html>
