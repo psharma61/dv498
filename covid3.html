@@ -1,0 +1,226 @@
+<html>
+<head>
+    <title>Covid Narrative</title>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+        body {
+          font: 4px sans-serif;
+        }
+        .axis path,
+        .axis line {
+          fill: none;
+          stroke: #000;
+          shape-rendering: crispEdges;
+        }
+
+        .x.axis path {
+          display: none;
+        }
+        
+        path {
+            fill: none;
+            stroke: #ed3700;
+            stroke-width: .2;
+        }
+        
+        path.line-0 {
+            fill: none;
+            stroke: #ed3700;
+            }
+
+        path.line-1 {
+            fill: none;
+            stroke: #0000FF;
+        }
+        .serie_label {
+            fill: #2b2929;
+            font-family: Georgia;
+            font-size: 80%;
+            }
+        
+            .overlay {
+            fill: none;
+            pointer-events: all;
+        }
+    </style>
+    <script type="text/javascript">  
+    function mousemove() {
+            var x0 = x.invert(d3.mouse(this)[0]),
+                i = bisectDate(data, x0, 1),
+                d0 = data[i - 1],
+                d1 = data[i],
+                d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+            focus.attr("transform", "translate(" + x(d.date) + "," + y(d.likes) + ")");
+            focus.select(".tooltip-date").text(dateFormatter(d.date));
+            focus.select(".tooltip-likes").text(formatValue(d.likes));
+    }
+    function plot_line_chart(data) {
+        var iso_code = 'USA';
+        var margin = 5,
+        width = 600,
+        height = 300,
+        padding=5,
+        adj=30;
+        
+        var header_div = d3.select("body")
+            .append("div")
+            .attr("id","header")
+            .attr("width", width-margin)
+            .attr("style","text-align: center;vertical-align: middle;");
+        
+        var content = d3.select("body")
+            .append("div")
+            .attr("id","content")
+            .attr("width", width-margin)
+            .attr("style","text-align: center;vertical-align: middle;"); 
+
+        var legend = d3.select("body")
+            .append("div")
+            .attr("id","legend")
+            .attr("width", width-margin)
+            .attr("style","text-align: center;vertical-align: middle;");
+        
+        var svg = d3.select('body').append("svg")
+            .attr("preserveAspectRatio", "xMinYMin meet")
+            .attr("viewBox", "-"
+               + adj + " -"
+               + adj + " "
+               + (width + adj *3) + " "
+               + (height + adj*3))
+            .style("padding", padding)
+            .style("margin", margin)
+            .classed("svg-content", true);
+        svg.append("text")
+        .attr("x", width / 2 )
+        .attr("y", -10)
+        .attr("class", "title")
+        .style("text-anchor", "middle")
+        .style("font-size", "130%")
+        .text("Daily new covid cases and deaths analysis chart");
+
+        var newcasesjsonObj = [];
+        var newdeathsjsonObj = [];
+        var slices = [];
+        var dtobj = d3.time.format("%d-%b-%Y")
+        for(var index in data) {
+            if(data[index].iso_code == iso_code) {
+                new_cases_item = {};
+                new_cases_item['date'] = dtobj.parse(data[index].datetime);
+                new_cases_item['measurement'] = data[index].new_cases;
+                newcasesjsonObj.push(new_cases_item);
+                
+                
+                new_deaths_item = {};
+                new_deaths_item['date'] = dtobj.parse(data[index].datetime);
+                new_deaths_item['measurement'] = data[index].new_deaths;
+                newdeathsjsonObj.push(new_deaths_item);
+            }
+        }
+        slices['new_cases']=  newcasesjsonObj;
+        slices['new_deaths']=  newdeathsjsonObj;
+        var all_slices_vals = [newcasesjsonObj, newdeathsjsonObj];
+        const xScale = d3.time.scale().range([0,width]);
+        const yScale = d3.scale.linear().rangeRound([height, 0]);
+        
+        
+        xdomain = d3.extent(slices['new_cases'], function(d){
+            return d['date'];
+        });
+        xScale.domain(xdomain);
+        
+        
+        ydomain = [(0), d3.max(all_slices_vals, function(c) {
+            return d3.max(c, function(d) {
+                return d.measurement + 4; });
+                })
+        ];
+        yScale.domain(ydomain);
+        
+        const yaxis = d3.svg.axis()
+            .ticks(30)
+            .scale(yScale).orient("left");
+
+        const xaxis = d3.svg.axis()
+            .ticks(55)
+            .tickFormat(d3.time.format('%b %d'))
+            .scale(xScale).orient("bottom");
+        
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xaxis)
+            .selectAll("text")	
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", function(d) {
+                return "rotate(-60)" 
+                });
+                
+        svg.append("g")
+            .attr("class", "axis")
+            .call(yaxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("dy", ".75em")
+            .attr("y", 6)
+            .style("text-anchor", "end")
+            .text("Frequency");
+        
+        var line = d3.svg.line()
+            .x(function(d) { return xScale(d.date); })
+            .y(function(d) { return yScale(d.measurement); });
+        
+        let id = 0;
+        const ids = function () {
+            return "line-"+id++;
+        }
+        
+        var arr_slices = [];
+        for(var x in slices) {
+                var myObject = {};
+                myObject['id'] = x;
+                myObject['values'] = slices[x];
+                arr_slices.push(myObject);
+        }
+        var lines = svg.selectAll("lines")
+            .data(arr_slices)
+            .enter()
+            .append("g");
+
+        lines.append("path")
+            .attr("class", ids)
+            .attr("d", function(d) {
+            return line(d.values); 
+            });
+            
+        lines.append("text")
+            .attr("class","serie_label")
+            .datum(function(d) {
+                return {
+                    id: d.id,
+                    value: d.values[d.values.length - 1]}; })
+            .attr("transform", function(d) {
+                    return "translate(" + (xScale(d.value.date) + 10)  
+                    + "," + (yScale(d.value.measurement) + 5 ) + ")";})
+            .attr("x", 5)
+            .text(function(d) { return ("Represents:") + d.id; });
+    };
+    </script>
+  </head>
+<body>
+  <script>
+    var dtformat = d3.time.format("%Y-%m-%d");
+    var timeConv = d3.time.format("%d-%b-%Y");
+    d3.tsv("/covid-data.tsv", function(d) {
+          d['date'] = dtformat.parse(d['date']);
+          d['datetime'] = timeConv(d['date']);
+          d['new_cases'] = +d['new_cases'];
+          d['new_deaths'] = +d['new_deaths'];
+          d['population'] = +d['population'];
+          return d;
+        }, plot_line_chart);
+  </script>  
+</body>
+</html>
