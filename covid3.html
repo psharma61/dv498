@@ -80,7 +80,7 @@
         for(var index in data) {
             select_data.push(data[index].location);
         }
-        var location = 'United States';
+        var location = 'World';
         select_data = [...new Set(select_data)];
         var options = legend
           .selectAll('myOptions')
@@ -106,7 +106,7 @@
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>Here by default we see daily trend of new covid and death cases in The United States of America (USA). "
+        d3.select("#content").html("<span style='font-size:15;'>Here by default we see daily trend of new covid and death cases across the world. "
         +" You can choose a country of your choice to see its daily line chart. If you wish to go back to first slide <a href='/pradeep8.github.io/index.html'>click here</a></span>");
         
         plot_line_chart2(data, location);
