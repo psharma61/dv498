@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <style>
+        select {
+            display: block;
+        }
         body {
           font: 4px sans-serif;
         }
@@ -43,26 +46,15 @@
             fill: none;
             pointer-events: all;
         }
+}
     </style>
     <script type="text/javascript">  
-    function mousemove() {
-            var x0 = x.invert(d3.mouse(this)[0]),
-                i = bisectDate(data, x0, 1),
-                d0 = data[i - 1],
-                d1 = data[i],
-                d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-            focus.attr("transform", "translate(" + x(d.date) + "," + y(d.likes) + ")");
-            focus.select(".tooltip-date").text(dateFormatter(d.date));
-            focus.select(".tooltip-likes").text(formatValue(d.likes));
-    }
-    function plot_line_chart(data) {
-        var iso_code = 'USA';
-        var margin = 5,
+    var margin = 5,
         width = 600,
         height = 300,
         padding=5,
         adj=30;
-        
+    function plot_line_chart(data) {
         var header_div = d3.select("body")
             .append("div")
             .attr("id","header")
@@ -74,13 +66,47 @@
             .attr("id","content")
             .attr("width", width-margin)
             .attr("style","text-align: center;vertical-align: middle;"); 
-
+        d3.select("body").append("label").text("Choose a country: ").attr("style","font-size:15px;font-weight:bold;");
         var legend = d3.select("body")
-            .append("div")
+            .append("select")
             .attr("id","legend")
-            .attr("width", width-margin)
-            .attr("style","text-align: center;vertical-align: middle;");
+            .attr('class','select')
+            .on('change',onchange);
+        var select_data = [];
+        for(var index in data) {
+            select_data.push(data[index].location);
+        }
+        select_data = [...new Set(select_data)];
+        var options = legend
+          .selectAll('myOptions')
+            .data(select_data).enter()
+            .append('option')
+            .text(function (d) { 
+                return d;
+            })
+            .attr("value", function (d) {
+                return d;
+            });
+                
+        var location = 'United States';
+        function onchange() {
+            location = d3.select('select').property('value');
+            plot_line_chart2(data, location);
+        };  
         
+        function header_content() {
+            var header_html = "<span style='font-size:60;'>World Covid Cases</span>" + "<br/>"
+            return header_html +"<br>";
+        }
+        d3.select("#header").html(header_content());
+        d3.select("#content").html("<span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
+            +"pandemic of coronavirus disease 2019 (COVID-19). Below bar chart can be used to do total cases and total deaths comparision between world's top 10 affected countries."
+            +"If you wish to see see daily trends of covid cases across world then <a href='/covid3.html'>click here</a></span>");
+        
+        plot_line_chart2(data, location);
+    }
+    function plot_line_chart2(data, location) {
+        d3.selectAll("svg").remove();
         var svg = d3.select('body').append("svg")
             .attr("preserveAspectRatio", "xMinYMin meet")
             .attr("viewBox", "-"
@@ -91,28 +117,37 @@
             .style("padding", padding)
             .style("margin", margin)
             .classed("svg-content", true);
+       
+        const tooltip = d3.select('#tooltip');
+        const tooltipLine = svg.append('line');
+        
         svg.append("text")
         .attr("x", width / 2 )
         .attr("y", -10)
         .attr("class", "title")
         .style("text-anchor", "middle")
         .style("font-size", "130%")
-        .text("Daily new covid cases and deaths analysis chart");
+        .style("font-weight", "bold")
+        .text("Daily new covid cases and deaths analysis chart (" + location+ ")");
 
         var newcasesjsonObj = [];
         var newdeathsjsonObj = [];
         var slices = [];
         var dtobj = d3.time.format("%d-%b-%Y")
+        var select_data = [];
         for(var index in data) {
-            if(data[index].iso_code == iso_code) {
+            select_data.push(data[index].location);
+            if(data[index].location == location) {
                 new_cases_item = {};
                 new_cases_item['date'] = dtobj.parse(data[index].datetime);
+                new_cases_item['strdate'] = data[index].datetime;
                 new_cases_item['measurement'] = data[index].new_cases;
                 newcasesjsonObj.push(new_cases_item);
                 
                 
                 new_deaths_item = {};
                 new_deaths_item['date'] = dtobj.parse(data[index].datetime);
+                new_deaths_item['strdate'] = data[index].datetime;
                 new_deaths_item['measurement'] = data[index].new_deaths;
                 newdeathsjsonObj.push(new_deaths_item);
             }
@@ -120,9 +155,9 @@
         slices['new_cases']=  newcasesjsonObj;
         slices['new_deaths']=  newdeathsjsonObj;
         var all_slices_vals = [newcasesjsonObj, newdeathsjsonObj];
+        
         const xScale = d3.time.scale().range([0,width]);
         const yScale = d3.scale.linear().rangeRound([height, 0]);
-        
         
         xdomain = d3.extent(slices['new_cases'], function(d){
             return d['date'];
@@ -205,11 +240,56 @@
                     return "translate(" + (xScale(d.value.date) + 10)  
                     + "," + (yScale(d.value.measurement) + 5 ) + ")";})
             .attr("x", 5)
-            .text(function(d) { return ("Represents:") + d.id; });
-    };
+            .text(function(d) { return ("Represents:") + d.id.replace("_"," "); });
+            
+        let states, tipBox;
+        tipBox = svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('opacity', 0)
+        .on('mousemove', drawTooltip)
+        .on('mouseout', removeTooltip);
+        
+        function removeTooltip() {
+          if (tooltip) tooltip.style('display', 'none');
+          if (tooltipLine) tooltipLine.attr('stroke', 'none');
+        }
+        
+        function drawTooltip() {
+          var timeConv = d3.time.format("%d-%b-%Y");
+          var dthovered = xScale.invert(d3.mouse(tipBox.node())[0]);
+          var dthoveredstr = timeConv(dthovered);
+          arr_slices.sort((a, b) => {
+            return b.values.find(h => 
+                h.strdate == dthoveredstr
+                ).measurement - a.values.find(h => h.strdate == dthoveredstr).measurement;
+          })  
+            
+          tooltipLine.attr('stroke', 'black')
+            .attr('x1', xScale(dthovered))
+            .attr('x2', xScale(dthovered))
+            .attr('y1', 0)
+            .attr('y2', height);
+          
+          tooltip.html(dthoveredstr)
+            .style('display', 'block')
+            .style('left', d3.event.pageX + 20)
+            .style('top', d3.event.pageY - 20)
+            .selectAll()
+            .data(arr_slices).enter()
+            .append('div')
+            .style('color', "black")
+            .html(d => 
+                d.id.replace("_"," ")+": " + d.values.find(
+                    h => h.strdate == dthoveredstr).measurement
+                    );
+        }
+
+        };
     </script>
   </head>
 <body>
+<div id='tooltip' style='display:none;height:50px;width: 150px;pointer-events: none;border-radius: 8px;border: 0px;font: 12px sans-serif;position:absolute;background-color:lightsteelblue;padding:2px'></div>
   <script>
     var dtformat = d3.time.format("%Y-%m-%d");
     var timeConv = d3.time.format("%d-%b-%Y");
