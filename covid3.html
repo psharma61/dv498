@@ -369,7 +369,7 @@
   <script>
     var dtformat = d3.time.format("%Y-%m-%d");
     var timeConv = d3.time.format("%d-%b-%Y");
-    d3.tsv("/covid-data.tsv", function(d) {
+    d3.tsv("/pradeep8.github.io/covid-data.tsv", function(d) {
           d['date'] = dtformat.parse(d['date']);
           d['datetime'] = timeConv(d['date']);
           d['new_cases'] = +d['new_cases'];

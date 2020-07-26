@@ -75,7 +75,7 @@
             }
         }
         
-        d3.tsv("/countries_coordinates.tsv", function(d) {
+        d3.tsv("/pradeep8.github.io/countries_coordinates.tsv", function(d) {
               d['latitude'] = +d['latitude'];
               d['longitude'] = +d['longitude'];
               return d;
@@ -248,7 +248,7 @@
   </head>
 <body>
   <script>
-    d3.json("/world_countries.json", draw);
+    d3.json("/pradeep8.github.io/world_countries.json", draw);
   </script>  
 </body>
 </html>

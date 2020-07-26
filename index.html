@@ -233,7 +233,7 @@
 
         var format = d3.time.format("%Y-%m-%d");
         var monthyear = d3.time.format("%b-%Y");
-        d3.tsv("/covid-data.tsv", function(d) {
+        d3.tsv("/pradeep8.github.io/covid-data.tsv", function(d) {
           d['date'] = format.parse(d['date']);
           d['monthyear'] = monthyear(d['date']);
           d['total_cases'] = +d['total_cases'];
@@ -248,7 +248,7 @@
   </head>
 <body>
   <script>
-    d3.json("/world_countries.json", draw);
+    d3.json("/pradeep8.github.io/world_countries.json", draw);
   </script>  
 </body>
 </html>
