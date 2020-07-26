@@ -80,9 +80,10 @@
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
-            +"pandemic of coronavirus disease 2019 (COVID-19). Below bar chart can be used to do total cases and total deaths comparision between world's top 10 affected countries."
-            +"If you wish to see see daily trends of covid cases across world then <a href='/covid3.html'>click here</a></span>");
+        d3.select("#content").html("<span style='font-size:15;'>In below chart we can see side by side comparison of top 10 countries in world affected due to Covid19. We can clearly "
+        + "see that The United States of America (USA) is extremely impacted in comparison to other 9 countries which has emerged as an outlier in the data set. But considering the "
+        +"number of covid cases in The USA, it looks like it is doing better in terms of number of deaths.<br><br>"
+        +"To know more about other countries covid and death cases and their daily until July 17th, 2020,<a href='/covid3.html'>click here</a></span>");
         d3.select("#legend").html("");
             
         var raw_nested = d3.nest()

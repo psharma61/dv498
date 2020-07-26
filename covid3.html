@@ -3,6 +3,7 @@
     <title>Covid Narrative</title>
     <meta charset="utf-8">
     <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/1.12.1/d3-annotation.min.js"></script>
     <style>
         select {
             display: block;
@@ -46,12 +47,15 @@
             fill: none;
             pointer-events: all;
         }
+        :root {
+              --annotation-anomaly-color: #E8336D;
+        }
 }
     </style>
     <script type="text/javascript">  
     var margin = 5,
-        width = 600,
-        height = 300,
+        width = 550,
+        height = 250,
         padding=5,
         adj=30;
     function plot_line_chart(data) {
@@ -76,6 +80,7 @@
         for(var index in data) {
             select_data.push(data[index].location);
         }
+        var location = 'United States';
         select_data = [...new Set(select_data)];
         var options = legend
           .selectAll('myOptions')
@@ -86,9 +91,11 @@
             })
             .attr("value", function (d) {
                 return d;
+            })
+            .property("selected", function (d) {
+                return location === d;
             });
                 
-        var location = 'United States';
         function onchange() {
             location = d3.select('select').property('value');
             plot_line_chart2(data, location);
@@ -99,9 +106,8 @@
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
-            +"pandemic of coronavirus disease 2019 (COVID-19). Below bar chart can be used to do total cases and total deaths comparision between world's top 10 affected countries."
-            +"If you wish to see see daily trends of covid cases across world then <a href='/covid3.html'>click here</a></span>");
+        d3.select("#content").html("<span style='font-size:15;'>Here by default we see daily trend of new covid and death cases in The United States of America (USA). "
+        +" You can choose a country of your choice to see its daily line chart. If you wish to go back to first slide <a href='/covid.html'>click here</a></span>");
         
         plot_line_chart2(data, location);
     }
@@ -118,8 +124,8 @@
             .style("margin", margin)
             .classed("svg-content", true);
        
-        const tooltip = d3.select('#tooltip');
-        const tooltipLine = svg.append('line');
+        var tooltip = d3.select('#tooltip');
+        var tooltipLine = svg.append('line');
         
         svg.append("text")
         .attr("x", width / 2 )
@@ -135,6 +141,10 @@
         var slices = [];
         var dtobj = d3.time.format("%d-%b-%Y")
         var select_data = [];
+        var high_covid_case = null;
+        var high_covid_case_dt = null;
+        var high_death_case = null;
+        var high_death_case_dt = null;
         for(var index in data) {
             select_data.push(data[index].location);
             if(data[index].location == location) {
@@ -144,14 +154,35 @@
                 new_cases_item['measurement'] = data[index].new_cases;
                 newcasesjsonObj.push(new_cases_item);
                 
+                if(high_covid_case == null) {
+                    high_covid_case = data[index].new_cases;
+                    high_covid_case_dt = dtobj.parse(data[index].datetime);
+                } else {
+                    if(high_covid_case < data[index].new_cases) {
+                        high_covid_case = data[index].new_cases;
+                        high_covid_case_dt = dtobj.parse(data[index].datetime);
+                    }
+                }
+                
                 
                 new_deaths_item = {};
                 new_deaths_item['date'] = dtobj.parse(data[index].datetime);
                 new_deaths_item['strdate'] = data[index].datetime;
                 new_deaths_item['measurement'] = data[index].new_deaths;
                 newdeathsjsonObj.push(new_deaths_item);
+                
+                if(high_death_case == null) {
+                    high_death_case = data[index].new_deaths;
+                    high_death_case_dt = dtobj.parse(data[index].datetime);
+                } else {
+                    if(high_death_case < data[index].new_deaths) {
+                        high_death_case = data[index].new_deaths;
+                        high_death_case_dt = dtobj.parse(data[index].datetime);
+                    }
+                }
             }
         }
+        
         slices['new_cases']=  newcasesjsonObj;
         slices['new_deaths']=  newdeathsjsonObj;
         var all_slices_vals = [newcasesjsonObj, newdeathsjsonObj];
@@ -171,6 +202,51 @@
                 })
         ];
         yScale.domain(ydomain);
+        
+        //Annotations - start
+        var annotations = [{
+              note: { label: "Surge in covid#", 
+              lineType:"none", 
+              orientation: "leftRight", 
+              "align": "middle" },
+            className: "anomaly",
+            type: d3.annotationCalloutCircle,
+            subject: { radius: 35 },
+            data: { x: high_covid_case_dt, y: high_covid_case},
+            dx: 40
+          },
+          {
+              note: { label: "Surge in deaths#", 
+              lineType:"none", 
+              orientation: "leftRight", 
+              "align": "middle" },
+            className: "anomaly",
+            type: d3.annotationCalloutCircle,
+            subject: { radius: 35 },
+            data: { x: high_death_case_dt, y: high_death_case},
+            dx: 40
+          }];
+        const type = d3.annotationCustomType(
+            d3.annotationXYThreshold, 
+            {"note":{
+                "lineType":"none",
+                "orientation": "top",
+                "align":"middle"}
+            }
+          );
+
+        /*const makeAnnotations = d3.annotation()
+            .type(type)
+            .accessors({ x: d => xScale(d.x), 
+              y: d => yScale(d.y)
+            })
+            .annotations(annotations)
+            .textWrap(30);
+        d3.select("svg")
+            .append("g")
+            .attr("class", "annotation-group")
+            .call(makeAnnotations);*/
+        //Annotations - end
         
         const yaxis = d3.svg.axis()
             .ticks(30)
@@ -242,7 +318,7 @@
             .attr("x", 5)
             .text(function(d) { return ("Represents:") + d.id.replace("_"," "); });
             
-        let states, tipBox;
+        let tipBox;
         tipBox = svg.append('rect')
         .attr('width', width)
         .attr('height', height)
@@ -265,7 +341,7 @@
                 ).measurement - a.values.find(h => h.strdate == dthoveredstr).measurement;
           })  
             
-          tooltipLine.attr('stroke', 'black')
+          tooltipLine.attr('stroke', '#DEE1E6').attr("shape-rendering","crispEdges")
             .attr('x1', xScale(dthovered))
             .attr('x2', xScale(dthovered))
             .attr('y1', 0)
