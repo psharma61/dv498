@@ -37,10 +37,20 @@
             fill: none;
             stroke: #0000FF;
         }
-        .serie_label {
-            fill: #2b2929;
+        .serie_label2 {
+            fill: #ed3700;
             font-family: Georgia;
-            font-size: 80%;
+            font-size: 90%;
+            }
+        
+            .overlay {
+            fill: none;
+            pointer-events: all;
+        }
+        .serie_label3 {
+            fill: #0000FF;
+            font-family: Georgia;
+            font-size: 90%;
             }
         
             .overlay {
@@ -287,6 +297,11 @@
         const ids = function () {
             return "line-"+id++;
         }
+
+        id = 0;
+        const serie_ids = function () {
+            return "serie_label"+id++;
+        }
         
         var arr_slices = [];
         for(var x in slices) {
@@ -307,7 +322,7 @@
             });
             
         lines.append("text")
-            .attr("class","serie_label")
+            .attr("class",serie_ids)
             .datum(function(d) {
                 return {
                     id: d.id,
@@ -316,7 +331,8 @@
                     return "translate(" + (xScale(d.value.date) + 10)  
                     + "," + (yScale(d.value.measurement) + 5 ) + ")";})
             .attr("x", 5)
-            .text(function(d) { return ("Represents:") + d.id.replace("_"," "); });
+            .text(function(d) { return ("Represents:") + d.id.replace("_"," "); 
+            });
             
         let tipBox;
         tipBox = svg.append('rect')
