@@ -23,8 +23,8 @@
     <script type="text/javascript">  
     function plot_bar_chart(data) {
         var margin = {top: 20, right: 20, bottom: 30, left: 40},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+        width = 1800 - margin.left - margin.right,
+        height = 600 - margin.top - margin.bottom;
         
         var header_div = d3.select("body")
             .append("div")
@@ -47,7 +47,7 @@
         var svg = d3.select('body').append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-            .attr("style", "padding-left: 400px;padding-top:50px;")
+            .attr("style", "padding-left: 50px;padding-top:50px;")
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         
@@ -76,14 +76,16 @@
         }
         
         function header_content() {
-            var header_html = "<span style='font-size:60;'>World Top 10 Covid Affected Countries</span>" + "<br/>"
+            var header_html = "<span style='font-size:60;'>Countries with total cases greater than China</span>" + "<br/>"
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>In below chart we can see side by side comparison of top 10 countries in world affected due to Covid19. We can clearly "
-        + "see that The United States of America (USA) is extremely impacted in comparison to other 9 countries which has emerged as an outlier in the data set. But considering the "
-        +"number of covid cases in The USA, it looks like it is doing better in terms of number of deaths.<br><br>"
-        +"To know more about other countries covid and death cases and their daily until July 17th, 2020,<a href='/pradeep8.github.io/covid3.html'>click here</a></span>");
+        d3.select("#content").html("<span style='font-size:15;'>In below chart we can see side by side comparison of countries having total cases greater than China(Outbreak Originator). We can clearly "
+        + "see that The United States of America (USA) is extremely impacted in comparison to other countries which has emerged as an outlier. Looking at below data, it's hard to believe that"
+        +" China where Covid19 actually started stand at 25th position as of July 17th but other countries cases are increasing every day.<br><br>"
+        +"To see the daily trend of new covid and death cases for these countries and other countries in the world click on NEXT below <br>"
+        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/index.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid3.html'>Next</a></span>");
         d3.select("#legend").html("");
             
         var raw_nested = d3.nest()
@@ -95,13 +97,27 @@
         
         var nested = [];
         var world_countries_cases = [];
+        var chn_total_cases = 0;
         for(var rn in raw_nested) {
             if(raw_nested[rn].values[0].field_value != 'World') {
                 world_countries_cases.push(raw_nested[rn].values[1].field_value);
+                if(raw_nested[rn].values[0].field_value === 'China') {
+                        chn_total_cases = raw_nested[rn].values[1].field_value;
+                 }
             }
         }
         
-        var top_20_cases_countries = world_countries_cases.sort((a,b) => b-a).slice(0,10);
+        //var top_20_cases_countries = world_countries_cases.sort((a,b) => b-a).slice(0,10);
+        var top_20_cases_countries=  [];
+        for(var c in world_countries_cases) {
+                if(world_countries_cases[c]>=chn_total_cases) {
+                    top_20_cases_countries.push(world_countries_cases[c]);
+                }
+        }
+            
+        top_20_cases_countries.sort(function(a, b){
+            return a - b;
+        }).reverse();
         for(var idx in top_20_cases_countries) {
             for(var rn in raw_nested) {
                 if(top_20_cases_countries[idx] == raw_nested[rn].values[1].field_value) {

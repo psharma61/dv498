@@ -112,12 +112,14 @@
         };  
         
         function header_content() {
-            var header_html = "<span style='font-size:60;'>World Covid Cases</span>" + "<br/>"
+            var header_html = "<span style='font-size:60;'>World Covid Cases (Daily Trend Analysis)</span>" + "<br/>"
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>Here by default we see daily trend of new covid and death cases across the world. "
-        +" You can choose a country of your choice to see its daily line chart. If you wish to go back to first slide <a href='/pradeep8.github.io/index.html'>click here</a></span>");
+        d3.select("#content").html("<span style='font-size:15;'>Here by default we can see daily trend of new covid and death cases across the world. "
+        +" You can choose a country of your choice to see its daily line chart."
+        +"<br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/index.html'>Start Over</a></span>");
         
         plot_line_chart2(data, location);
     }
