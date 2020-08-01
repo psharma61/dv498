@@ -18,7 +18,7 @@
         background: lightsteelblue;	
         border: 0px;		
         border-radius: 8px;			
-        pointer-events: none;	
+        pointer-events: none;
 }
     </style>
     <script type="text/javascript">  
@@ -138,6 +138,30 @@
                 
             }
             
+            function wrap(text, width) {
+              text.each(function() {
+                let text = d3.select(this),
+                  words = text.text().split(/\s+/).reverse(),
+                  word,
+                  line = [],
+                  lineNumber = 0,
+                  lineHeight = 1.1, // ems
+                  x = text.attr("x"),
+                  y = text.attr("y"),
+                  dy = 1.1,
+                  tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+                while (word = words.pop()) {
+                  line.push(word);
+                  tspan.text(line.join(" "));
+                  if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                  }
+                }
+            })};
+            
             var raw_nested = d3.nest()
                            .key(function(d) {
                               return d['location'];
@@ -150,12 +174,12 @@
             
             d3.select("#content").html("<span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
             +"pandemic of coronavirus disease 2019 (COVID-19), caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)."
-            +" The outbreak was first identified in Wuhan, China, in December 2019. "
+            +"<br> The outbreak was first identified in Wuhan, China, in December 2019. "
             +"The World Health Organization declared the outbreak a Public Health Emergency of International Concern on 30 January 2020 and a pandemic on 11 March."
             +"To learn more about Covid19<a href='https://en.wikipedia.org/wiki/COVID-19_pandemic'>click here</a><br><br>"
-            +"Below map displays countries impacted by COVID-19 cases. Countries with total covid cases greater than China are circled in <span style='background-color:#ddd;color:red;'>RED</span>, China(Outbreak Originator) is circle in <span style='background-color:#ddd;color:blue;'>BLUE</span>"
-            +"and remaining countries are marked in <span style='background-color:#ddd;color:yellow;'>YELLOW</span>. Actual figures about total cases and deaths can be seen by hovering over the circles. <br><br>"
-            +"To see side by side comparison of total Covid19 cases and total deaths until July 17th, 2020 in these countries, click on NEXT below."
+            +"Below map displays countries impacted by COVID-19 cases. Countries with total covid cases greater than China are circled in <span style='background-color:#ddd;color:red;'>RED</span>, China(Outbreak Originator) is circled in <span style='background-color:#ddd;color:blue;'>BLUE</span>"
+            +"and remaining countries are marked in <span style='background-color:#ddd;color:yellow;'>YELLOW</span>.<br> Actual figures about total cases and deaths for any country can be seen by hovering over its circle. <br><br>"
+            +"To see side by side comparison of total Covid19 cases and total deaths until July 17th, 2020 in these countries, click next below."
             +"<br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html'>Next</a></span>");
             
             d3.select("#legend").html(map_legend());
@@ -253,6 +277,110 @@
                         })
                .attr('stroke-width', 0.7)
                .attr('opacity', 0.7);
+               
+            svg.append('line')
+            .style("stroke", "black")
+            .style("stroke-width", .3)
+            .attr("x1", 150)
+            .attr("y1", 350)
+            .attr("x2", 420)
+            .attr("y2", 260); 
+            
+            svg.append('line')
+            .style("stroke", "black")
+            .style("stroke-width", .3)
+            .attr("x1", 920)
+            .attr("y1", 260)
+            .attr("x2", 1100)
+            .attr("y2", 260);
+            
+            
+            svg.append('line')
+            .style("stroke", "black")
+            .style("stroke-width", .3)
+            .attr("x1", 738)
+            .attr("y1", 290)
+            .attr("x2", 800)
+            .attr("y2", 450);
+            
+            svg.append("rect")
+                .attr("x", 50)
+                .attr("y", 350)
+                .attr("width", 410)
+                .attr("height", 50)
+                .attr("fill", "white")
+                .attr("stroke", "gray").attr("stroke-width",".2");
+           svg.append("text")
+          .attr("x", 60)
+          .attr("y", 350)
+          .attr("dy", ".71em").attr("font-weight","bold").attr("font-size","15")
+          .text("United States, Position: 1st"); 
+          svg.append("text")
+          .attr("x", 60)
+          .attr("y", 370)
+          .attr("dy", ".71em")
+          .text("Confirmed coronavirus cases in the US increased significantly in the third week of March.");
+          svg.append("text")
+          .attr("x", 60)
+          .attr("y", 380)
+          .attr("dy", ".71em")
+          .text("It overtook China’s on 26 March making the US the world’s most affected country.");
+          svg.append("text")
+          .attr("x", 60)
+          .attr("y", 390)
+          .attr("dy", ".71em")
+          .text("Until July 17th, In US total confirmed covid cases:3576221 and total deaths: 138358");
+          
+          
+            svg.append("rect")
+                .attr("x", 1000)
+                .attr("y", 250)
+                .attr("width", 400)
+                .attr("height", 50)
+                .attr("fill", "white")
+                .attr("stroke", "gray").attr("stroke-width",".2");
+            
+            svg.append("text")
+          .attr("x", 1000)
+          .attr("y", 250)
+          .attr("dy", ".71em").attr("font-weight","bold").attr("font-size","15")
+          .text("China (Origin of Covid19), Position: 25th"); 
+          svg.append("text")
+          .attr("x", 1000)
+          .attr("y", 270)
+          .attr("dy", ".71em")
+          .text("The outbreak was first identified in December 2019 in Wuhan, China.");
+          svg.append("text")
+          .attr("x", 1000)
+          .attr("y", 280)
+          .attr("dy", ".71em")
+          .text("Until March 25th, China had highest number of covid cases in the world around 82500.");
+          svg.append("text")
+          .attr("x", 1000)
+          .attr("y", 290)
+          .attr("dy", ".71em")
+          .text("Until July 17th, In China total confirmed covid cases:85323 and total deaths: 4644");
+            
+            
+            svg.append("rect")
+                .attr("x", 600)
+                .attr("y", 450)
+                .attr("width", 400)
+                .attr("height", 30)
+                .attr("fill", "white")
+                .attr("stroke", "gray").attr("stroke-width",".2");
+                
+         svg.append("text")
+          .attr("x", 600)
+          .attr("y", 450)
+          .attr("dy", ".71em").attr("font-weight","bold").attr("font-size","15")
+          .text("Egypt, Position: 24th"); 
+          svg.append("text")
+          .attr("x", 600)
+          .attr("y", 470)
+          .attr("dy", ".71em")
+          .text("Until July 17th, In Egypt total confirmed covid cases:85771 and total deaths: 4120");
+            
         }
 
         var format = d3.time.format("%Y-%m-%d");

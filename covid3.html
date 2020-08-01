@@ -3,7 +3,6 @@
     <title>Covid Narrative</title>
     <meta charset="utf-8">
     <script src="https://d3js.org/d3.v3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/1.12.1/d3-annotation.min.js"></script>
     <style>
         select {
             display: block;
@@ -117,8 +116,8 @@
         }
         d3.select("#header").html(header_content());
         d3.select("#content").html("<span style='font-size:15;'>Here by default we can see daily trend of new covid and death cases across the world. "
-        +" You can choose a country of your choice to see its daily line chart."
-        +"<br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        +"<br> You can choose a country of your choice to see its daily new covid and death cases.Hovering over any point will display total new cases and deaths reported for a given date<br>"
+        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
         +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/index.html'>Start Over</a></span>");
         
         plot_line_chart2(data, location);
@@ -214,51 +213,6 @@
                 })
         ];
         yScale.domain(ydomain);
-        
-        //Annotations - start
-        var annotations = [{
-              note: { label: "Surge in covid#", 
-              lineType:"none", 
-              orientation: "leftRight", 
-              "align": "middle" },
-            className: "anomaly",
-            type: d3.annotationCalloutCircle,
-            subject: { radius: 35 },
-            data: { x: high_covid_case_dt, y: high_covid_case},
-            dx: 40
-          },
-          {
-              note: { label: "Surge in deaths#", 
-              lineType:"none", 
-              orientation: "leftRight", 
-              "align": "middle" },
-            className: "anomaly",
-            type: d3.annotationCalloutCircle,
-            subject: { radius: 35 },
-            data: { x: high_death_case_dt, y: high_death_case},
-            dx: 40
-          }];
-        const type = d3.annotationCustomType(
-            d3.annotationXYThreshold, 
-            {"note":{
-                "lineType":"none",
-                "orientation": "top",
-                "align":"middle"}
-            }
-          );
-
-        /*const makeAnnotations = d3.annotation()
-            .type(type)
-            .accessors({ x: d => xScale(d.x), 
-              y: d => yScale(d.y)
-            })
-            .annotations(annotations)
-            .textWrap(30);
-        d3.select("svg")
-            .append("g")
-            .attr("class", "annotation-group")
-            .call(makeAnnotations);*/
-        //Annotations - end
         
         const yaxis = d3.svg.axis()
             .ticks(30)
