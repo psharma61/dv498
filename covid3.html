@@ -59,6 +59,23 @@
         :root {
               --annotation-anomaly-color: #E8336D;
         }
+a.button {
+    background-color: lightblue;
+    border: none;
+    color: white;
+    padding: 8px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    }
+     div.header {
+    padding: 5px;
+    text-align: center;
+    background: lightblue;
+    color: white;
+    font-size: 15px;
+    vertical-align: middle;
 }
     </style>
     <script type="text/javascript">  
@@ -72,7 +89,7 @@
             .append("div")
             .attr("id","header")
             .attr("width", width-margin)
-            .attr("style","text-align: center;vertical-align: middle;");
+            .attr("class","header");
         
         var content = d3.select("body")
             .append("div")
@@ -111,14 +128,14 @@
         };  
         
         function header_content() {
-            var header_html = "<span style='font-size:60;'>World Covid Cases (Daily Trend Analysis)</span>" + "<br/>"
+            var header_html = "<span style='font-size:40;'>World Covid Cases (Daily Trend Analysis)</span>" + "<br>"
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>Here by default we can see daily trend of new covid and death cases across the world. "
+        d3.select("#content").html("<br><span style='font-size:15;'>Here by default we can see daily trend of new covid and death cases across the world. "
         +"<br> You can choose a country of your choice to see its daily new covid and death cases.Hovering over any point will display total new cases and deaths reported for a given date<br>"
-        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/index.html'>Start Over</a></span>");
+        +"<br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a class='button' href='/pradeep8.github.io/covid2.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a class='button' href='/pradeep8.github.io/index.html'>Start Over</a></span>");
         
         plot_line_chart2(data, location);
     }

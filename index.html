@@ -20,6 +20,25 @@
         border-radius: 8px;			
         pointer-events: none;
 }
+
+a.button {
+    background-color: lightblue;
+    border: none;
+    color: white;
+    padding: 8px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    }
+    
+    div.header {
+    padding: 5px;
+    text-align: center;
+    background: lightblue;
+    color: white;
+    vertical-align: middle;
+}
     </style>
     <script type="text/javascript">  
       function draw(geo_data) {
@@ -32,7 +51,7 @@
             .append("div")
             .attr("id","header")
             .attr("width", width-margin)
-            .attr("style","text-align: center;vertical-align: middle;");
+            .attr("class","header");
         
         var content = d3.select("body")
             .append("div")
@@ -125,9 +144,9 @@
             }
             
             function header_content(world_total_cases, world_total_deaths) {
-                var header_html = "<span style='font-size:60;'>World Covid Cases</span>" + "<br/>"
-                    + "<span style='font-size:30;'>Total cases:</span><span style='font-size:30;color:red;'>" + world_total_cases 
-                    + "</span><span style='font-size:30;'>, Total deaths:</span><span style='font-size:30;color:red;'>" + world_total_deaths+"</span><br/>";
+                var header_html = "<span style='font-size:40;'>World Covid Cases</span>" + "<br/>"
+                    + "<span style='font-size:20;'>Total cases:</span><span style='font-size:20;color:red;'>" + world_total_cases 
+                    + "</span><span style='font-size:20;'>, Total deaths:</span><span style='font-size:20;color:red;'>" + world_total_deaths+"</span><br/>";
                 return header_html +"<br>";
             }
             
@@ -172,7 +191,7 @@
             // display header & content
             d3.select("#header").html(header_content(world_total_cases, world_total_deaths));
             
-            d3.select("#content").html("<span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
+            d3.select("#content").html("<br><span style='font-size:15;'>The <b>COVID-19 pandemic</b>, also known as the <b>coronavirus pandemic</b>, is an ongoing global "
             +"pandemic of coronavirus disease 2019 (COVID-19), caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2)."
             +"<br> The outbreak was first identified in Wuhan, China, in December 2019. "
             +"The World Health Organization declared the outbreak a Public Health Emergency of International Concern on 30 January 2020 and a pandemic on 11 March."
@@ -180,7 +199,7 @@
             +"Below map displays countries impacted by COVID-19 cases. Countries with total covid cases greater than China are circled in <span style='background-color:#ddd;color:red;'>RED</span>, China(Outbreak Originator) is circled in <span style='background-color:#ddd;color:blue;'>BLUE</span>"
             +"and remaining countries are marked in <span style='background-color:#ddd;color:yellow;'>YELLOW</span>.<br> Actual figures about total cases and deaths for any country can be seen by hovering over its circle. <br><br>"
             +"To see side by side comparison of total Covid19 cases and total deaths until July 17th, 2020 in these countries, click next below."
-            +"<br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html'>Next</a></span>");
+            +"<br><br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid2.html' class='button'>Next</a></span>");
             
             d3.select("#legend").html(map_legend());
             

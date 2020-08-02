@@ -18,7 +18,24 @@
         .x.axis path {
           display: none;
         }
-
+a.button {
+    background-color: lightblue;
+    border: none;
+    color: white;
+    padding: 8px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    }
+    
+     div.header {
+    padding: 5px;
+    text-align: center;
+    background: lightblue;
+    color: white;
+    vertical-align: middle;
+}
     </style>
     <script type="text/javascript">  
     function plot_bar_chart(data) {
@@ -30,7 +47,7 @@
             .append("div")
             .attr("id","header")
             .attr("width", width-margin)
-            .attr("style","text-align: center;vertical-align: middle;");
+            .attr("class","header");
         
         var content = d3.select("body")
             .append("div")
@@ -76,16 +93,16 @@
         }
         
         function header_content() {
-            var header_html = "<span style='font-size:60;'>Countries with total cases greater than China</span>" + "<br/>"
+            var header_html = "<span style='font-size:40;'>Countries with total cases greater than China</span>" + "<br/>"
             return header_html +"<br>";
         }
         d3.select("#header").html(header_content());
-        d3.select("#content").html("<span style='font-size:15;'>In below chart we can see side by side comparison of countries having total cases greater than China(Outbreak Originator). We can clearly "
+        d3.select("#content").html("<br><span style='font-size:15;'>In below chart we can see side by side comparison of countries having total cases greater than China(Outbreak Originator). We can clearly "
         + "see that The United States of America (USA) is extremely impacted in comparison to other countries which has emerged as an outlier. Looking at below data, it's hard to believe that"
         +" China where Covid19 actually started stand at 25th position as of July 17th but other countries cases are increasing every day.<br><br>"
         +"To see the daily trend of new covid and death cases for these countries and other countries in the world click on NEXT below <br>"
-        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/index.html'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid3.html'>Next</a></span>");
+        +"<br><span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/index.html' class='button'>Previous</a></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        +"<span style='background-color:#32CD32;font-weight:bold;font-size:20px;'><a href='/pradeep8.github.io/covid3.html' class='button'>Next</a></span>");
         d3.select("#legend").html("");
             
         var raw_nested = d3.nest()
